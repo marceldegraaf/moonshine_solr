@@ -31,7 +31,7 @@ module Solr
     # Make sure the Moonshine user can write to the Jetty log dir.
     #
     def chown_log_dir
-      exec 'Chown Jetty log dir',
+      exec 'chown log dir',
            :command => "chown -R #{configuration[:user]} /var/log/jetty",
            :require => package('solr-jetty')
     end

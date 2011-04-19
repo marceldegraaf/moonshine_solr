@@ -11,10 +11,47 @@ describe "A manifest with the Solr plugin" do
     @manifest.should be_executable
   end
 
-  #it "should provide packages/services/files" do
-  # @manifest.packages.keys.should include 'foo'
-  # @manifest.files['/etc/foo.conf'].content.should match /foo=true/
-  # @manifest.execs['newaliases'].refreshonly.should be_true
-  #end
+  it 'should install the solr-jetty package' do
+    @manifest.should have_package('solr-jetty')
+  end
+
+  it 'should chown the Jetty log directory' do
+    config = {
+      :application => 'foobar',
+      :user => 'foo',
+      :deploy_to => '/srv/bar'
+    }
+    @manifest.configure(config)
+
+    @manifest.should exec_command('chown -R foo /var/log/jetty')
+  end
+
+  it 'should logrotate the jetty log' do
+
+  end
+
+  it 'should start Jetty' do
+    @manifest.should exec_command('/etc/init.d/jetty start')
+  end
+
+  it 'should create Solr config directories' do
+    solr_dir = @manifest.files['/etc/solr']
+    solr_dir.should_not be_nil
+    solr_dir.ensure.should == :directory
+
+    conf_dir = @manifest.files['/etc/solr/conf']
+    conf_dir.should_not be_nil
+    conf_dir.ensure.should == :directory
+  end
+
+  it 'should create config files' do
+    @manifest.should have_file('/etc/default/jetty')
+    @manifest.should have_file('/etc/solr/conf/elevate.xml')
+    @manifest.should have_file('/etc/solr/conf/schema.xml')
+    @manifest.should have_file('/etc/solr/solrconfig.xml')
+    @manifest.should have_file('/etc/solr/conf/spellings.txt')
+    @manifest.should have_file('/etc/solr/conf/stopwords.txt')
+    @manifest.should have_file('/etc/solr/conf/synonyms.txt')
+  end
 
 end
