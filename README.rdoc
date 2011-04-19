@@ -8,7 +8,13 @@ A Moonshine[http://github.com/railsmachine/moonshine] plugin to install the Solr
 * This plugin assumes that your Solr data is living in <tt>DEPLOY_TO/shared/solr/data/RAILS_ENV</tt>, which is symlinked to <tt>RAILS_ROOT/solr/data/RAILS_ENV</tt>. That means that your deploy user should have write access to this directory. This could be achieved by setting up a Capistrano task that chmods the Solr data directory for you, e.g.
     namespace :deploy do
       task :symlink_solr, :roles => :web, :except => { :no_release => true } do
+        # Make sure the solr data directory exists
+        run "sudo ruby -r fileutils -e \"FileUtils.mkdir_p('#{shared_path}/solr/data/#{rails_env}')\""
+
+        # Symlink it to the application
         run "ln -nfs #{shared_path}/solr/data #{release_path}/solr/data"
+
+        # Chown it so it's writable by the rails user
         run "sudo chown -R rails:rails #{shared_path}/solr/data/#{rails_env}/"
       end
     end
