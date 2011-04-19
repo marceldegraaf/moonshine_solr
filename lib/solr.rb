@@ -104,8 +104,8 @@ module Solr
     # Convenience method to copy an existing (local) config file
     # and use it for Solr.
     #
-    def use_local_config_file(config_file)
-      file file_name,
+    def use_local_config_file(config_file, mode = '644')
+      file solr_config_path(config_file),
            :ensure => :present,
            :mode => mode,
            :content => File.join(deploy_path, 'solr', 'conf', config_file),
@@ -130,14 +130,15 @@ module Solr
     # Should +config_file+ be used from the Rails app source tree?
     #
     def should_use_local_config_file(config_file)
-      options[:use_my_config_files] && options[:use_my_config_files].include?(config_file)
+      return true if options[:use_my_config_files] == :all
+      options[:use_my_config_files] && options[:use_my_config_files].is_a?(Array) && options[:use_my_config_files].include?(config_file)
     end
 
     #
     # Does +config_file+ exist in the Rails app source tree?
     #
     def local_config_file_exists(config_file)
-      File.exists?(File.join(deploy_path, 'solr', 'conf', config_file))
+      File.exists?(File.join(deploy_path, 'current', 'solr', 'conf', config_file))
     end
 
     #
