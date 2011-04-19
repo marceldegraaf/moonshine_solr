@@ -1,8 +1,6 @@
 = Moonshine Solr
 
-== A plugin for Moonshine[http://github.com/railsmachine/moonshine]
-
-A plugin for installing and Solr through Jetty.
+A Moonshine[http://github.com/railsmachine/moonshine] plugin to install the Solr search engine as a servlet in the Jetty server.
 
 == Instructions
 
