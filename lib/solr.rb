@@ -151,7 +151,7 @@ module Solr
     # This is where all Solr configuration will be stored on the server.
     #
     def solr_config_path(config_file)
-      File.join('etc', 'solr', 'conf', config_file)
+      File.join('/', 'etc', 'solr', 'conf', config_file)
     end
 
     #
