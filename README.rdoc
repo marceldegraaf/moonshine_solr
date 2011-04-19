@@ -2,6 +2,8 @@
 
 A Moonshine[http://github.com/railsmachine/moonshine] plugin to install the Solr search engine as a servlet in the Jetty server.
 
+Please take the time to read through this README to make sure you know what's going on.
+
 == Assumptions
 
 * By default the Jetty server runs as Moonshines deploy user (e.g. <tt>rails</tt>).
@@ -18,14 +20,17 @@ A Moonshine[http://github.com/railsmachine/moonshine] plugin to install the Solr
         run "sudo chown -R rails:rails #{shared_path}/solr/data/#{rails_env}/"
       end
     end
+* In <tt>RAILS_ROOT/config/deploy.rb</tt> you would then call this task with:
+    after "moonshine:apply", "deploy:symlink_solr"
 
 == Instructions
 
 * Install the plugin: <tt>rails plugin install git://github.com/marceldegraaf/moonshine_solr.git</tt>
-* Configure settings if needed
+* Configure settings if needed (see Notes below for more info)
     configure(
       :solr => {
-        :port => 8182 # defaults to 8182
+        :port => 8182,
+        :use_my_config_files => %w(schema.xml solrconfig.xml)
       }
     )
 * Invoke the recipe(s) in your Moonshine manifest
@@ -37,6 +42,21 @@ A Moonshine[http://github.com/railsmachine/moonshine] plugin to install the Solr
         hostname: localhost
         port: 8182
         log_level: WARNING
+
+== Notes
+
+The <tt>:port</tt> option is optional and defaults to <tt>8182</tt>.
+
+The <tt>:use_my_config_files</tt> option tells Moonshine which Solr config files should be copied from your app's source tree instead of using the file provided with the moonshine_solr plugin.
+Please note that your local config files MUST be in <tt>RAILS_ROOT/solr/conf</tt> and can only be one of:
+* elevate.xml
+* schema.xml
+* solrconfig.xml
+* spellings.txt
+* stopwords.txt
+* synonyms.txt
+
+For all configuration files that aren't copied from your app's source tree, the templates from this plugin will be used. These are the default XML files as provided by Sunspot. If you feel these are the wrong defaults, please send me a message or fork, fix and request a pull.
 
 == Contribute?
 

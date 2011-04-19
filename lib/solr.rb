@@ -9,8 +9,10 @@ module Solr
   #
   #    recipe :solr
   def solr(options = {})
+    @options = options
+
     install_dependencies
-    create_config_files
+    create_config_files(options)
     chown_log_dir
     log_rotation
 
@@ -32,7 +34,7 @@ module Solr
     #
     def chown_log_dir
       exec 'chown log dir',
-           :command => "chown -R #{configuration[:user]} /var/log/jetty",
+           :command => "chown -R #{moonshine_user} /var/log/jetty",
            :require => package('solr-jetty')
     end
 
@@ -62,28 +64,29 @@ module Solr
     #
     # Create config files from each of the templates configured below.
     #
-    def create_config_files
+    def create_config_files(options)
+      # Ensure the Solr configuration directory exists.
       file '/etc/solr', :ensure => :directory
       file '/etc/solr/conf', :ensure => :directory
 
-      config_files.each do |config_file|
-        create_file_from_template(config_file[:file_name], config_file[:template_path])
+      # Copy the default Jetty config file
+      create_file_from_template '/etc/default/jetty', 'default_jetty.erb'
+
+      # Create Solr config files
+      solr_config_files.each do |solr_config_file|
+        if should_use_local_config_file(solr_config_file) && local_config_file_exists(solr_config_file)
+          use_local_config_file(solr_config_file)
+        else
+          create_file_from_template(solr_config_path(solr_config_file), config_file_template(solr_config_file))
+        end
       end
     end
 
     #
-    # These templates will be copied to their respective +file_name+.
+    # The full list of config files that will be made available to Solr.
     #
-    def config_files
-      [
-        {:file_name => '/etc/default/jetty',            :template_path => 'default_jetty.erb'},
-        {:file_name => '/etc/solr/conf/elevate.xml',    :template_path => 'elevate.xml.erb'},
-        {:file_name => '/etc/solr/conf/schema.xml',     :template_path => 'schema.xml.erb'},
-        {:file_name => '/etc/solr/conf/solrconfig.xml', :template_path => 'solrconfig.xml.erb'},
-        {:file_name => '/etc/solr/conf/spellings.txt',  :template_path => 'spellings.txt.erb'},
-        {:file_name => '/etc/solr/conf/stopwords.txt',  :template_path => 'stopwords.txt.erb'},
-        {:file_name => '/etc/solr/conf/synonyms.txt',   :template_path => 'synonyms.txt.erb'}
-      ]
+    def solr_config_files
+      %w(elevate.xml schema.xml solrconfig.xml spellings.txt stopwords.txt synonyms.txt)
     end
 
     #
@@ -96,4 +99,66 @@ module Solr
            :content => template(File.join(File.dirname(__FILE__), '..', 'templates', template_path), binding),
            :require => package('solr-jetty')
     end
+
+    #
+    # Convenience method to copy an existing (local) config file
+    # and use it for Solr.
+    #
+    def use_local_config_file(config_file)
+      file file_name,
+           :ensure => :present,
+           :mode => mode,
+           :content => File.join(deploy_path, 'solr', 'conf', config_file),
+           :require => package('solr-jetty')
+    end
+
+    #
+    # The user that runs the Rails application
+    #
+    def moonshine_user
+      configuration[:user]
+    end
+
+    #
+    # Path where the Rails application is deployed to.
+    #
+    def deploy_path
+      configuration[:deploy_to]
+    end
+
+    #
+    # Should +config_file+ be used from the Rails app source tree?
+    #
+    def should_use_local_config_file(config_file)
+      options[:use_my_config_files] && options[:use_my_config_files].include?(config_file)
+    end
+
+    #
+    # Does +config_file+ exist in the Rails app source tree?
+    #
+    def local_config_file_exists(config_file)
+      File.exists?(File.join(deploy_path, 'solr', 'conf', config_file))
+    end
+
+    #
+    # Template file for +config_file+
+    #
+    def config_file_template(config_file)
+      "#{config_file}.erb"
+    end
+
+    #
+    # This is where all Solr configuration will be stored on the server.
+    #
+    def solr_config_path(config_file)
+      File.join('etc', 'solr', 'conf', config_file)
+    end
+
+    #
+    # Shortcut to provided options
+    #
+    def options
+      @options ||= {}
+    end
+
 end
