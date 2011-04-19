@@ -15,9 +15,7 @@ A Moonshine[http://github.com/railsmachine/moonshine] plugin to install the Solr
 
 == Instructions
 
-* Install the plugin.
-  On Rails < 3: <tt>script/plugin install git://github.com/marceldegraaf/moonshine_solr.git</tt>
-  On Rails > 3: <tt>rails plugin install git://github.com/marceldegraaf/moonshine_solr.git</tt>
+* Install the plugin: <tt>rails plugin install git://github.com/marceldegraaf/moonshine_solr.git</tt>
 * Configure settings if needed
     configure(
       :solr => {
