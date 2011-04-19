@@ -4,8 +4,8 @@ A Moonshine[http://github.com/railsmachine/moonshine] plugin to install the Solr
 
 == Assumptions
 
-* By default the Jetty server runs as Moonshines deploy user (e.g. "rails").
-* This plugin assumes that your Solr data is living in #{deploy_to}/shared/solr/data/#{Rails.env}, which is symlinked to #{Rails.root}/solr/data/#{Rails.env}. That means that your deploy user should have write access to this directory. This could be achieved by setting up a Capistrano task that chmods the Solr data directory for you, e.g.
+* By default the Jetty server runs as Moonshines deploy user (e.g. <tt>rails</tt>).
+* This plugin assumes that your Solr data is living in <tt>#{deploy_to}/shared/solr/data/#{Rails.env}</tt>, which is symlinked to <tt>#{Rails.root}/solr/data/#{Rails.env}</tt>. That means that your deploy user should have write access to this directory. This could be achieved by setting up a Capistrano task that chmods the Solr data directory for you, e.g.
     namespace :deploy do
       task :symlink_solr, :roles => :web, :except => { :no_release => true } do
         run "ln -nfs #{shared_path}/solr/data #{release_path}/solr/data"
