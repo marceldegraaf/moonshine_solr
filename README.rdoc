@@ -2,13 +2,17 @@
 
 == A plugin for Moonshine[http://github.com/railsmachine/moonshine]
 
-A plugin for installing and managing Solr on Jetty.
+A plugin for installing and Solr through Jetty.
 
 == Instructions
 
 * <tt>script/plugin install git://github.com/marceldegraaf/moonshine_solr.git</tt>
 * Configure settings if needed
-    configure(:solr => {:port => 8182})
+    configure(
+      :solr => {
+        :port => 8182 # defaults to 8182
+      }
+    )
 * Invoke the recipe(s) in your Moonshine manifest
     recipe :solr
 
