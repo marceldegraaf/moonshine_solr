@@ -108,7 +108,7 @@ module Solr
       file solr_config_path(config_file),
            :ensure => :present,
            :mode => mode,
-           :content => File.join(deploy_path, 'solr', 'conf', config_file),
+           :content => File.open(File.join(deploy_path, 'solr', 'conf', config_file)),
            :require => package('solr-jetty')
     end
 
