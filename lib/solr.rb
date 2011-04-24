@@ -16,7 +16,7 @@ module Solr
     chown_log_dir
     log_rotation
 
-    start_jetty
+    restart_jetty
   end
 
   private
@@ -48,11 +48,11 @@ module Solr
     end
 
     #
-    # Boot her up!
+    # Restart Jetty servlet container.
     #
-    def start_jetty
+    def restart_jetty
       exec 'Start Jetty',
-           :command => '/etc/init.d/jetty start',
+           :command => '/etc/init.d/jetty stop && /etc/init.d/jetty start',
            :require => [
                          file('/etc/default/jetty'),
                          file('/etc/solr/conf/solrconfig.xml'),
