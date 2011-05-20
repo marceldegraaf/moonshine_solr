@@ -65,7 +65,7 @@
   <!-- Used to specify an alternate directory to hold all index data
        other than the default ./data under the Solr home.
        If replication is in use, this should match the replication configuration. -->
-  <dataDir><%= configuration[:deploy_to] %>/current/solr/data/<%= ENV['RAILS_ENV'] || 'production' %></dataDir>
+  <dataDir><%= options[:data_dir] || "${solr.data.dir:./solr/data}" %></dataDir>
   <!-- WARNING: this <indexDefaults> section only provides defaults for index writers
        in general. See also the <mainIndex> section after that when changing parameters
        for Solr's main Lucene index. -->
